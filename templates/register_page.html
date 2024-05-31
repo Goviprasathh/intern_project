@@ -1,15 +1,125 @@
 <!DOCTYPE html>
+{% load static tailwind_tags %}
+{% load form_tags %}
 <html>
 <head>
-    <title>Register</title>
+    <title>Register Student</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #videoModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        #videoContent {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+    </style>
+    {% tailwind_css %}
 </head>
 <body>
-    <h2>Register</h2>
-    <form method="post">
+    <h1 class="text-4xl pt-4">Register Student</h1>
+    
+    <form class="space-y-4 max-w-2xl mx-auto" id="studentForm" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit</button>
+        {% for field in form %}
+        <div class="mb-4">
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+            <!-- Adjust text field here percentage -->
+            {{ field|add_class:"mt-1 block w-full md:w-3/4 lg:w-2/3 xl:w-1/2 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50" }}
+            {% if field.help_text %}
+                <p class="text-sm text-gray-500">{{ field.help_text }}</p>
+            {% endif %}
+            {% for error in field.errors %}
+                <p class="text-sm text-red-600">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="button" id="submitButton" class="bg-indigo-600 px-4 py-3 text-center text-sm font-semibold inline-block text-white cursor-pointer transition duration-200 ease-in-out rounded-md hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 active:scale-95">
+            Capture Photos
+        </button>
+
+
+        <p>{{ message }}</p>
+
+        
+
     </form>
-    <p>{{ message }}</p>
+
+    <div id="videoModal">
+        <div id="videoContent">
+            <h2>Capturing Images...</h2>
+            <video id="video" width="600" autoplay></video>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $("#submitButton").click(function() {
+                var form = $("#studentForm");
+                var studentId = $("#id_student_id").val(); 
+                var name = $("#id_name").val();  
+                $.ajax({
+                    url: form.attr("action"),
+                    type: form.attr("method"),
+                    data: form.serialize(),
+                    success: function(response) {
+                        $("#videoModal").show();
+                        startVideoCapture(studentId, name);  
+                    }
+                });
+            });
+        });
+
+        function startVideoCapture(studentId, name) { 
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    var video = document.getElementById('video');
+                    video.srcObject = stream;
+                    captureImages(video, studentId, name);  
+                })
+                .catch(function(err) {
+                    console.log("An error occurred: " + err);
+                });
+        }
+
+        function captureImages(video, studentId, name) {
+            let count = 0;
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const captureInterval = setInterval(function() {
+                if (count < 50) {
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = canvas.toDataURL('image/jpeg').replace(/^data:image\/jpeg;base64,/, "");
+                    $.post("{% url 'capture_image' %}", {
+                        image: imageData,
+                        count: count,  
+                        serial: '1',  
+                        student_id: studentId,  
+                        name: name, 
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    });
+                    
+                    count++;
+                } else {
+                    clearInterval(captureInterval);
+                    video.srcObject.getTracks().forEach(track => track.stop());
+                    $("#videoModal").hide();
+                    alert("Images Captured Successfully");
+                
+                }
+            }, 200);
+        }
+    </script>
 </body>
 </html>

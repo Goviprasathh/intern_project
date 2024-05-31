@@ -19,8 +19,9 @@ from django.urls import include, path
 from attendance import views 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls), 
     path('', include('attendance.urls')),
+    path("hii/", include("django_browser_reload.urls")),
     
 ]
 

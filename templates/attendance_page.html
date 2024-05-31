@@ -1,11 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Attendance Page</title>
 </head>
 <body>
-    <h1>Take Attendance page</h1>
+    <h1>Attendance Page</h1>
+    <button id="startButton">Start Attendance</button>
+    <video id="video" width="640" height="480" autoplay></video>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const video = document.getElementById('video');
+
+        document.getElementById('startButton').addEventListener('click', function() {
+            // Request access to the camera
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+
+                    // Capture frames every 200ms and send to server
+                    const captureInterval = setInterval(function() {
+                        const canvas = document.createElement('canvas');
+                        const context = canvas.getContext('2d');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        const imageData = canvas.toDataURL('image/jpeg').replace(/^data:image\/jpeg;base64,/, '');
+
+                        $.ajax({
+                            url: "{% url 'track_images' %}",
+                            method: 'POST',
+                            data: {
+                                image: imageData,
+                                csrfmiddlewaretoken: '{{ csrf_token }}'
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    console.log('Attendance recorded successfully');
+                                } else {
+                                    console.log('Failed to record attendance');
+                                }
+                            }
+                        });
+                    }, 200);
+
+                    // Stop capturing after 10 seconds
+                    setTimeout(function() {
+                        clearInterval(captureInterval);
+                        stream.getTracks().forEach(track => track.stop());
+                    }, 10000);
+                })
+                .catch(err => console.error('Error accessing camera: ', err));
+        });
+    </script>
 </body>
 </html>

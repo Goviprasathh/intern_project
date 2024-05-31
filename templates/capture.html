@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static tailwind_tags %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,29 +12,36 @@
             height: 10vh;
         }
     </style>
+
+{% tailwind_css %}
 </head>
 <body>
-    <center>
-        <h1>Hello Welcome to face recognition based attendance system</h1>
-
-        <div class="register">
-            <a class="a-tag" href="/register">
-                <button>Click Me</button>
-            </a>
-
+    <div class="text-center mt-7 flex-auto">
+        <h1 class="font-bold font-serif text-4xl">Hello Welcome to face recognition based attendance system</h1>
+    
+        <div class="main mt-8 space-y-8">
+            <div class="register">
+                <a class="a-tag" href="/register">
+                    <button class="bg-indigo-600 px-4 py-3 text-center text-sm font-semibold inline-block text-white cursor-pointer transition duration-200 ease-in-out rounded-md hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 active:scale-95">
+                        Register Here
+                    </button>
+                </a>
+            </div>
+    
+            <div class="register">
+                <a class="a-tag" href="/take_attendance">
+                    <button class="bg-indigo-600 px-4 py-3 text-center text-sm font-semibold inline-block text-white cursor-pointer transition duration-200 ease-in-out rounded-md hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 active:scale-95">
+                        Take Attendance
+                    </button>
+                </a>
+            </div>
         </div>
+    </div>
+    
+
         
 
-        <div class="register">
-            <a class="a-tag" href="/take_attendance">
-                <button>attendance Me</button>
-            </a>
-
-        </div>
-
-        
-
-    </center>
+    </div>
 
 </body>
 </html>
