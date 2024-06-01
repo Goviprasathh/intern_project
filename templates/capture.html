@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% load static tailwind_tags %}
+<!-- {% load static tailwind_tags %} -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -11,18 +11,73 @@
             width: 100%;
             height: 10vh;
         }
+        .text-center {
+    text-align: center;
+    flex: 1 1 auto;
+    margin-top: 1.75rem; 
+}
+
+.main-heading {
+    font-weight: 700;
+    font-family: serif;
+    font-size: 2.25rem;
+}
+
+.main {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.register {
+    display: flex;
+    justify-content: center;
+}
+
+.a-tag {
+    text-decoration: none;
+}
+
+.action-button {
+    background-color: #4f46e5; 
+    padding: 0.75rem 1rem; 
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 600; 
+    color: white;
+    cursor: pointer;
+    display: inline-block;
+    transition: background-color 0.2s, transform 0.2s;
+    border-radius: 0.375rem; 
+    outline: none;
+    border: none;
+}
+
+.action-button:hover {
+    background-color: #4338ca; 
+}
+
+.action-button:focus-visible {
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.5), 0 0 0 4px rgba(255, 255, 255, 1); 
+}
+
+.action-button:active {
+    transform: scale(0.95); 
+}
+
     </style>
 
-{% tailwind_css %}
+<!-- {% tailwind_css %} -->
 </head>
 <body>
-    <div class="text-center mt-7 flex-auto">
-        <h1 class="font-bold font-serif text-4xl">Hello Welcome to face recognition based attendance system</h1>
+    <div class="text-center">
+        <h1 class="main-heading">Hello Welcome to face recognition based attendance system</h1>
     
-        <div class="main mt-8 space-y-8">
+        <div class="main">
             <div class="register">
                 <a class="a-tag" href="/register">
-                    <button class="bg-indigo-600 px-4 py-3 text-center text-sm font-semibold inline-block text-white cursor-pointer transition duration-200 ease-in-out rounded-md hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 active:scale-95">
+                    <button class="action-button">
                         Register Here
                     </button>
                 </a>
@@ -30,13 +85,14 @@
     
             <div class="register">
                 <a class="a-tag" href="/take_attendance">
-                    <button class="bg-indigo-600 px-4 py-3 text-center text-sm font-semibold inline-block text-white cursor-pointer transition duration-200 ease-in-out rounded-md hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 active:scale-95">
+                    <button class="action-button">
                         Take Attendance
                     </button>
                 </a>
             </div>
         </div>
     </div>
+    
     
 
         

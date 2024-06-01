@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import pandas as pd
 import numpy as np
+import mysql.connector
 
 
 
@@ -28,8 +29,48 @@ def assure_path_exists(path):
         os.makedirs(path)
 
 def check_haarcascadefile():
-    if not os.path.isfile("haarcascade_frontalface_default.xml"):
-        raise FileNotFoundError("Please contact Us")
+    exists = os.path.isfile("haarcascade_frontalface_default.xml")
+    if exists:
+        # TrackImages()
+        pass
+    else:
+        print('please contact us')
+
+
+
+def insert_register_to_db(student_id, name,serial):
+    database = mysql.connector.connect(host='localhost', password='Govi@123', user='root', database='attendance_sheet')
+    
+    cursor = database.cursor()
+
+    sql = "INSERT INTO intern_project_reg_details (ID, Name,serial) VALUES (%s, %s, %s)"
+    check_data = "SELECT * FROM intern_project_reg_details WHERE ID = %s"
+
+    try:
+        cursor.execute(check_data, (student_id,))
+        result = cursor.fetchone()
+
+        if result:
+            # If record exists, do not insert duplicate data
+            print("Duplicate record, not inserting.")
+            return "Duplicate data, already inserted."
+        else:
+            # If record does not exist, insert the new record
+            cursor.execute(sql, (student_id,name,serial))
+            database.commit()
+            print("Record inserted successfully.")
+            return "Record inserted successfully."
+    except mysql.connector.Error as err:
+        print("Error:", err)
+        database.rollback()
+        return f"Error: {err}"
+    finally:
+        cursor.close()
+        database.close()
+
+
+
+
 
 @csrf_exempt
 def register(request):
@@ -66,6 +107,9 @@ def register(request):
                 with open(file_path, 'a+') as csvFile:
                     writer = csv.writer(csvFile)
                     writer.writerow(row)
+
+                db_message = insert_register_to_db(student_id,name,serial)
+                message = f"Your {student_id} and {name} created successfully, and photo saved! {db_message}"    
 
                 message = f"Your {student_id} and {name} created successfully, and photo saved!"
 
@@ -179,6 +223,8 @@ def track_images(request):
 
         while True:
             ret, im = cam.read()
+            if not ret:
+                break
             gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
             faces = faceCascade.detectMultiScale(gray, 1.2, 5)
             for (x, y, w, h) in faces:
